@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+  workflow_dispatch: {}
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: license shenanigans
+      uses: Kong/kong-license@7302c8154056c156d28b7eff412b966fc351ca08
+      id: license
+      with:
+        password: ${{ secrets.PULP_PASSWORD }}
+
+    - name: setup golang
+      uses: actions/setup-go@v3
+      with:
+        go-version: '^1.18'
+
+    - name: checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: env
+      run: env
+      env:
+        KONG_LICENSE_DATA: ${{ steps.license.outputs.license }}
